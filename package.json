@@ -1,0 +1,23 @@
+{
+  "name": "ident-generator",
+  "version": "1.0.0",
+  "description": "Generate masive identity with FakerJS",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sonofescobar1337/ident-generator.git"
+  },
+  "author": "sonofescobar1337",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/sonofescobar1337/ident-generator/issues"
+  },
+  "homepage": "https://github.com/sonofescobar1337/ident-generator#readme",
+  "dependencies": {
+    "faker": "^5.5.3",
+    "fs": "^0.0.1-security"
+  }
+}
