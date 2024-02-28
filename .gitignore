@@ -1,2 +1,6 @@
-*.txt
 node_modules
+*.py
+lonte.js
+dev*
+generated_*
+*.txt
