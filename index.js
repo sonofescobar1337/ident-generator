@@ -1,5 +1,7 @@
 const fs = require('fs');
 const faker = require('faker');
+const us = require('./module/us/us');
+const id = require('./module/id/id')
 
 const readline = require('readline').createInterface({
   input: process.stdin,
@@ -44,56 +46,16 @@ function generateEmail(quantity) {
 }
 
 
-function generatessn() {
-    // Generate random numbers for each section
-    const section1 = pad(Math.floor(Math.random() * 1000), 3);
-    const section2 = pad(Math.floor(Math.random() * 1000), 3);
-    const section3 = pad(Math.floor(Math.random() * 10000), 4);
-    
-    // Concatenate sections with dashes
-    return `${section1}-${section2}-${section3}`;
+function formatIdentityToCSV(identity) {
+  return Object.values(identity).join('|');
 }
 
-
-function pad(num, size) {
-    let numString = num.toString();
-    while (numString.length < size) numString = "0" + numString;
-    return numString;
-}
-
-
-function generateFullIdentityLOCKUS(quantity) {
-  const data = [];
-  for (let i = 0; i < quantity; i++) {
-    const firstName = faker.name.firstName();
-    const lastName = faker.name.lastName();
-    const userName = faker.internet.userName();
-    const phoneNumber = faker.phone.phoneNumber();
-    const email = faker.internet.email();
-    const ip = faker.internet.ip();
-    const userAgent = faker.internet.userAgent();
-    const ssn = generatessn()
-    const streetAddress = faker.address.streetAddress();
-    const zipCode = faker.address.zipCode();
-    const state = faker.address.state();
-
-    const identity = {
-      FirstName: firstName,
-      LastName: lastName,
-      Email: email,
-      Username: userName,
-      PhoneNumber: phoneNumber,
-      IP: ip,
-      UserAgent: userAgent,
-      SSN: ssn,
-      StreetAddress: streetAddress,
-      ZipCode: zipCode,
-      State: state
-    };
-
-    data.push(identity);
+function formatIdentityToText(identity) {
+  let formattedData = '';
+  for (const key in identity) {
+    formattedData += `${key}: ${identity[key]}\n`;
   }
-  return data;
+  return formattedData;
 }
 
 function generateFullIdentityRandomCountry(quantity) {
@@ -136,7 +98,8 @@ readline.question(`Choose an option:
 3. Generate Phone Number
 4. Generate Email
 5. Generate Full Identity LOCK US
-6. Generate Full Identity (Random Country)
+6. Generate Full Identity LOCK ID
+7. Generate Full Identity (Random Country)
 Enter your choice: `, (option) => {
   option = parseInt(option);
   if (option >= 1 && option <= 6) {
@@ -157,22 +120,55 @@ Enter your choice: `, (option) => {
           generatedData = generateEmail(quantity);
           break;
         case 5:
-          generatedData = generateFullIdentityLOCKUS(quantity);
+          generatedData = us.generateFullIdentity(quantity);
           break;
         case 6:
+          generatedData = id.generateFullIdentity(quantity);
+          break;
+        case 7:
           generatedData = generateFullIdentityRandomCountry(quantity);
           break;
         default:
           console.log('Invalid option');
       }
 
-      const currentTime = new Date().toISOString().replace(/:/g, '-');
-      const fileName = `generated_${currentTime}.txt`;
-
-      fs.writeFile(fileName, JSON.stringify(generatedData, null, 2), (err) => {
-        if (err) throw err;
-        console.log(`Generated data saved to ${fileName}`);
-        readline.close();
+      const currentTime = new Date().toISOString().replace(/:/g, '-'); // Definisi currentTime di sini
+      readline.question(`Choose file format:
+      1. Text
+      2. CSV
+      3. JSON
+      Enter your choice: `, (fileFormat) => {
+        fileFormat = parseInt(fileFormat);
+        let fileName;
+        switch (fileFormat) {
+          case 1:
+            fileName = `generated_${currentTime}.txt`;
+            fs.writeFile(fileName, generatedData.map(formatIdentityToText).join('\n'), (err) => {
+              if (err) throw err;
+              console.log(`Generated data saved to ${fileName}`);
+              readline.close();
+            });
+            break;
+          case 2:
+            fileName = `generated_${currentTime}.csv`;
+            fs.writeFile(fileName, generatedData.map(formatIdentityToCSV).join('\n'), (err) => {
+              if (err) throw err;
+              console.log(`Generated data saved to ${fileName}`);
+              readline.close();
+            });
+            break;
+          case 3:
+            fileName = `generated_${currentTime}.json`;
+            fs.writeFile(fileName, JSON.stringify(generatedData, null, 2), (err) => {
+              if (err) throw err;
+              console.log(`Generated data saved to ${fileName}`);
+              readline.close();
+            });
+            break;
+          default:
+            console.log('Invalid file format');
+            readline.close();
+        }
       });
     });
   } else {
